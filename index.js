@@ -12,9 +12,13 @@ function getStateFromForm() {
     stateForm.addEventListener('submit', (event) => {
         event.preventDefault();
         const stateGiven = stateInput.value;
-        getBreweriesByState(stateGiven).then(obj => state.breweriesByState = obj);
+        getBreweriesByState(stateGiven).then(obj => {
+            state.breweriesByState = obj
+            createListElements();
+        });
         stateInput.value = '';
-        // render();
+
+
     })
 
 }
@@ -56,16 +60,33 @@ function createListElements() {
 
     const listContainer = document.createElement('ul');
     listContainer.setAttribute('class', 'breweries-list');
+    console.log('before loop')
 
+    for (const brewery of state.breweriesByState) {
+        const listElement = createBreweryProperties(brewery)
+        //Add listElement to listContainer:
+        listContainer.append(listElement);
+    }
+
+    //Add listContainer to articleEl:
+    articleEl.append(listContainer);
+
+    //Add title, header and article to main:
+
+    main.append(articleEl);
+
+}
+
+function createBreweryProperties(brewery) {
     //List items
     const listElement = document.createElement('li');
 
     const breweryTitle = document.createElement('h2');
-    breweryTitle.textContent = 'Snow Belt Brew';
+    breweryTitle.textContent = brewery.name;
 
     const breweryType = document.createElement('div');
     breweryType.setAttribute('class', 'type');
-    breweryType.textContent = 'micro';
+    breweryType.textContent = brewery['brewery_type'];
 
     const addressSection = document.createElement('section');
     addressSection.setAttribute('class', 'address');
@@ -73,9 +94,9 @@ function createListElements() {
     const addressTitle = document.createElement('h3');
     addressTitle.textContent = 'Address:';
     const firstPartAdd = document.createElement('p');
-    firstPartAdd.textContent = '9511 Kile Rd';
+    firstPartAdd.textContent = brewery['address_2'];
     const secPartAdd = document.createElement('strong');
-    secPartAdd.textContent = 'Chardon, 44024';
+    secPartAdd.textContent = brewery.street;
     const secPartAddContainer = document.createElement('p');
 
     //Add secPartAdd to secPartAddContaoner:
@@ -88,7 +109,7 @@ function createListElements() {
     const phoneTitle = document.createElement('h3');
     phoneTitle.textContent = 'Phone:';
     const phoneNumber = document.createElement('p');
-    phoneNumber.textContent = 'N/A';
+    phoneNumber.textContent = brewery.phone;
 
     //Add phoneTitle and phoneNumber to phoneSection:
     phoneSection.append(phoneTitle, phoneNumber);
@@ -97,7 +118,7 @@ function createListElements() {
     linkSection.setAttribute('class', 'link');
 
     const link = document.createElement('a');
-    link.setAttribute('href', 'null');
+    link.setAttribute('href', brewery['website_url']);
     link.setAttribute('target', 'blank');
     link.textContent = 'Visit Website';
 
@@ -106,19 +127,9 @@ function createListElements() {
 
     //Add sections to listElement:
     listElement.append(breweryTitle, breweryType, addressSection, phoneSection, linkSection);
-
-    //Add listElement to listContainer:
-    listContainer.append(listElement);
-
-    //Add listContainer to articleEl:
-    articleEl.append(listContainer);
-
-    //Add title, header and article to main:
-
-    main.append(articleEl);
+    return listElement;
 
 }
-
 
 function getBreweriesFromDatabase() {
     return fetch('https://api.openbrewerydb.org/breweries?per_page=50').then(res => res.json())
@@ -140,7 +151,7 @@ function getBreweriesByType(type) {
 }
 function render() {
     renderHeaderElements();
-    createListElements();
+    // createListElements();
 }
 function init() {
     getBreweriesFromDatabase().then(function (breweriesFromDatabase) {
