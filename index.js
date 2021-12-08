@@ -3,6 +3,7 @@ const main = document.querySelector('main');
 const state = {
     breweries: [],
     breweriesByState: [],
+    breweriesCities: [],
     // availableStates:[],
 }
 
@@ -142,7 +143,7 @@ function createBreweryProperties(brewery) {
 }
 
 function getBreweriesFromDatabase() {
-    return fetch('https://api.openbrewerydb.org/breweries?per_page=50').then(res => res.json())
+    return fetch('https://api.openbrewerydb.org/breweries').then(res => res.json())
 }
 
 // function getBreweriesByState(state) {
@@ -162,17 +163,37 @@ function getBreweriesByCity(city) {
 function getBreweriesByType(type) {
     return fetch(`https://api.openbrewerydb.org/breweries?by_type=${type}`).then(res => res.json())
 }
+
+function getCities() {
+    let newArr = []
+    for (const brewery of state.breweries) {
+        newArr.push(brewery.city);
+    }
+    //From Stack Overflow: Removes repeated elements
+    newArr = newArr.filter(function (item, pos) {
+        return newArr.indexOf(item) == pos;
+    })
+    state.breweriesCities = newArr;
+
+}
 function render() {
     renderHeaderElements();
 
     articleEl.innerHTML = ''
 }
+
 function init() {
     getBreweriesFromDatabase().then(function (breweriesFromDatabase) {
         state.breweries = breweriesFromDatabase;
+        getCities()
     })
+
+
 
     getStateFromForm();
     render();
 }
+
+
+
 init();
