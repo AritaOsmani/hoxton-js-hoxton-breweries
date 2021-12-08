@@ -18,9 +18,7 @@ function getStateFromForm() {
     })
 
 }
-
-
-function createListElements() {
+function renderHeaderElements() {
     const title = document.createElement('h1');
     title.textContent = 'List of Breweries'
     const headerEl = document.createElement('header');
@@ -49,7 +47,11 @@ function createListElements() {
 
     //Add  formEl to headerEl:
     headerEl.append(formEl);
+    main.append(title, headerEl);
+}
 
+
+function createListElements() {
     const articleEl = document.createElement('article');
 
     const listContainer = document.createElement('ul');
@@ -113,7 +115,7 @@ function createListElements() {
 
     //Add title, header and article to main:
 
-    main.append(title, headerEl, articleEl);
+    main.append(articleEl);
 
 }
 
@@ -136,13 +138,16 @@ function getBreweriesByCity(city) {
 function getBreweriesByType(type) {
     return fetch(`https://api.openbrewerydb.org/breweries?by_type=${type}`).then(res => res.json())
 }
-
+function render() {
+    renderHeaderElements();
+    createListElements();
+}
 function init() {
     getBreweriesFromDatabase().then(function (breweriesFromDatabase) {
         state.breweries = breweriesFromDatabase;
     })
 
     getStateFromForm();
+    render();
 }
 init();
-createListElements();
