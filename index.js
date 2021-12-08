@@ -1,4 +1,3 @@
-
 const main = document.querySelector('main');
 
 const state = {
@@ -6,6 +5,20 @@ const state = {
     breweriesByState: [],
     // availableStates:[],
 }
+
+function getStateFromForm() {
+    const stateForm = document.querySelector('#select-state-form');
+    const stateInput = document.querySelector('#select-state');
+    stateForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const stateGiven = stateInput.value;
+        getBreweriesByState(stateGiven).then(obj => state.breweriesByState = obj);
+        stateInput.value = '';
+        // render();
+    })
+
+}
+
 
 function createListElements() {
     const title = document.createElement('h1');
@@ -90,7 +103,7 @@ function createListElements() {
     linkSection.append(link);
 
     //Add sections to listElement:
-    listElement.append(addressSection, phoneSection, linkSection);
+    listElement.append(breweryTitle, breweryType, addressSection, phoneSection, linkSection);
 
     //Add listElement to listContainer:
     listContainer.append(listElement);
@@ -110,8 +123,9 @@ function getBreweriesFromDatabase() {
 }
 
 function getBreweriesByState(state) {
-    return fetch(`https://api.openbrewerydb.org/breweries?by_state=${state}`).then(res => res.json())
+    return fetch(`https://api.openbrewerydb.org/breweries?by_state=${state}&per_page=10`).then(res => res.json())
 }
+
 
 
 
@@ -127,7 +141,8 @@ function init() {
     getBreweriesFromDatabase().then(function (breweriesFromDatabase) {
         state.breweries = breweriesFromDatabase;
     })
-    getBreweriesByState('ohio').then(obj => state.breweriesByState = obj);
+
+    getStateFromForm();
 }
 init();
 createListElements();
