@@ -13,11 +13,20 @@ function getStateFromForm() {
         event.preventDefault();
         const stateGiven = stateInput.value;
         getBreweriesByState(stateGiven).then(obj => {
-            state.breweriesByState = obj
-            createListElements();
-        });
-        stateInput.value = '';
+            state.breweriesByState = obj;
+            state.breweriesByState = state.breweriesByState.filter(element => {
+                return element['brewery_type'] === 'micro' || element['brewery_type'] === 'regional' || element['brewery_type'] === 'brewpub'
+            })
+            let newArray = [];
+            for (let i = 0; i < 10; i++) {
+                newArray.push(state.breweriesByState[i]);
+            }
+            // state.breweriesByState = newArray;
+            render();
+            createListElements(newArray);
 
+        });
+        // stateInput.value = '';
 
     })
 
@@ -53,16 +62,17 @@ function renderHeaderElements() {
     headerEl.append(formEl);
     main.append(title, headerEl);
 }
+const articleEl = document.createElement('article');
 
+function createListElements(array) {
 
-function createListElements() {
-    const articleEl = document.createElement('article');
 
     const listContainer = document.createElement('ul');
+
     listContainer.setAttribute('class', 'breweries-list');
     console.log('before loop')
 
-    for (const brewery of state.breweriesByState) {
+    for (const brewery of array) {
         const listElement = createBreweryProperties(brewery)
         //Add listElement to listContainer:
         listContainer.append(listElement);
@@ -135,10 +145,13 @@ function getBreweriesFromDatabase() {
     return fetch('https://api.openbrewerydb.org/breweries?per_page=50').then(res => res.json())
 }
 
-function getBreweriesByState(state) {
-    return fetch(`https://api.openbrewerydb.org/breweries?by_state=${state}&per_page=10`).then(res => res.json())
-}
+// function getBreweriesByState(state) {
+//     return fetch(`https://api.openbrewerydb.org/breweries?by_state=${state}&per_page=10`).then(res => res.json())
+// }
 
+function getBreweriesByState(state) {
+    return fetch(`https://api.openbrewerydb.org/breweries?by_state=${state}`).then(res => res.json())
+}
 
 
 
@@ -151,7 +164,8 @@ function getBreweriesByType(type) {
 }
 function render() {
     renderHeaderElements();
-    // createListElements();
+
+    articleEl.innerHTML = ''
 }
 function init() {
     getBreweriesFromDatabase().then(function (breweriesFromDatabase) {
