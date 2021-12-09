@@ -9,7 +9,8 @@ const state = {
     breweriesCities: [],
     breweryTypes: ['micro', 'regional', 'brewpub'],
     selectedBreweryType: '',
-    selectedCities: []
+    selectedCities: [],
+    breweryName: ''
 }
 
 
@@ -22,6 +23,7 @@ function getStateFromForm() {
         getBreweriesByState(stateGiven).then(obj => {
             state.breweriesByState = obj;
             state.selectedCities = [];
+            state.breweryName = '';
             render();
         });
     })
@@ -36,12 +38,12 @@ function getBreweriesToDisplay() {
         for (const item of state.selectedCities) {
             breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === item)
         }
+    } else if (state.breweryName !== '') {
+        breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.name === state.breweryName)
     }
     breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
         return state.breweryTypes.includes(brewery['brewery_type']);
     })
-
-
 
     breweriesToDisplay = breweriesToDisplay.slice(0, 10);
     return breweriesToDisplay;
@@ -78,6 +80,7 @@ function renderHeaderElements() {
     formEl.setAttribute('id', 'search-breweries-form');
     formEl.setAttribute('autocomplete', 'off');
 
+
     const labelEl = document.createElement('label');
     labelEl.setAttribute('for', 'search-breweries');
 
@@ -91,6 +94,13 @@ function renderHeaderElements() {
     inputEl.setAttribute('id', 'search-breweries');
     inputEl.setAttribute('name', 'search-breweries');
     inputEl.setAttribute('type', 'text');
+
+    formEl.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const cityName = inputEl.value;
+        state.breweryName = cityName;
+        render();
+    })
 
     //Add labelEl and inputEl to the formEl:
     formEl.append(labelEl, inputEl);
