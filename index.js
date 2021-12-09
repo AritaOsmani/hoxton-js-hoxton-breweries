@@ -10,7 +10,8 @@ const state = {
     breweryTypes: ['micro', 'regional', 'brewpub'],
     selectedBreweryType: '',
     selectedCities: [],
-    breweryName: ''
+    breweryName: '',
+    breweryCity: ''
 }
 
 
@@ -24,6 +25,7 @@ function getStateFromForm() {
             state.breweriesByState = obj;
             state.selectedCities = [];
             state.breweryName = '';
+            state.breweryCity = ''
             render();
         });
     })
@@ -37,9 +39,14 @@ function getBreweriesToDisplay() {
 
         for (const item of state.selectedCities) {
             breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === item)
+
         }
     } else if (state.breweryName !== '') {
         breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.name === state.breweryName)
+
+    } else if (state.breweryCity !== '') {
+
+        breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === state.breweryCity)
     }
     breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
         return state.breweryTypes.includes(brewery['brewery_type']);
@@ -98,7 +105,14 @@ function renderHeaderElements() {
     formEl.addEventListener('submit', (event) => {
         event.preventDefault();
         const cityName = inputEl.value;
-        state.breweryName = cityName;
+        if (state.breweriesCities.includes(cityName)) {
+            state.breweryCity = cityName;
+            state.breweryName = ''
+        } else {
+            state.breweryName = cityName;
+            state.selectedCities = [];
+        }
+
         render();
     })
 
