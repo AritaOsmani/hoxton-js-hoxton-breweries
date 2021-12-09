@@ -27,15 +27,24 @@ function getStateFromForm() {
 }
 function getBreweriesToDisplay() {
     let breweriesToDisplay = state.breweriesByState;
-    breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
-        return state.breweryTypes.includes(brewery['brewery_type']);
-    })
+    if (state.selectedBreweryType !== '') {
+        breweriesToDisplay = breweriesToDisplay
+            .filter(brewery => brewery['brewery_type'] === state.selectedBreweryType)
+    } else {
+        breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
+            return state.breweryTypes.includes(brewery['brewery_type']);
+        })
+
+    }
+
     breweriesToDisplay = breweriesToDisplay.slice(0, 10);
     return breweriesToDisplay;
 }
 function listenToSelectElement() {
     filterTypeSelect.addEventListener('change', function () {
         state.selectedBreweryType = filterTypeSelect.value;
+        render();
+        state.selectedBreweryType = ''
     })
 }
 function getSelectedCheckbox() {
@@ -184,6 +193,7 @@ function renderFilterSection() {
     filterTypeSelect.setAttribute('id', 'filter-by-type');
     filterTypeSelect.setAttribute('name', '"filter-by-type');
     const initialOption = document.createElement('option');
+    initialOption.setAttribute('value', null);
     initialOption.textContent = 'Select a type...';
     filterTypeSelect.append(initialOption);
 
@@ -193,6 +203,7 @@ function renderFilterSection() {
         optionEl.textContent = type;
         filterTypeSelect.append(optionEl);
     }
+
     //Add filterTypeSelect to filterTypeForm:
     filterTypeForm.append(filterTypeSelect);
 
