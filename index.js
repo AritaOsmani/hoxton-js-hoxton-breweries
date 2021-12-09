@@ -10,29 +10,7 @@ const state = {
     breweryTypes: ['micro', 'regional', 'brewpub']
 }
 
-// function getStateFromForm() {
-//     const stateForm = document.querySelector('#select-state-form');
-//     const stateInput = document.querySelector('#select-state');
-//     stateForm.addEventListener('submit', (event) => {
-//         event.preventDefault();
-//         const stateGiven = stateInput.value;
-//         getBreweriesByState(stateGiven).then(obj => {
-//             state.breweriesByState = obj;
-//             state.breweriesByState = state.breweriesByState.filter(element => {
 
-//                 return state.breweryTypes.includes(element['brewery_type'])
-//             })
-//             let newArray = [];
-//             for (let i = 0; i < 10; i++) {
-//                 newArray.push(state.breweriesByState[i]);
-//             }
-
-//             render();
-//             createListElements(newArray);
-
-//         });
-//     })
-// }
 function getStateFromForm() {
     const stateForm = document.querySelector('#select-state-form');
     const stateInput = document.querySelector('#select-state');
@@ -165,7 +143,83 @@ function createBreweryProperties(brewery) {
     return listElement;
 
 }
+function renderFilterSection() {
+    asideEL.innerHTML = ''
+    if (state.breweriesByState.length === 0) {
+        asideEL.style.display = 'none';
+    } else {
+        asideEL.style.display = 'block';
+    }
+    const filterByTitle = document.createElement('h2');
+    filterByTitle.textContent = 'Filter By:';
 
+    const filterTypeForm = document.createElement('form');
+    filterTypeForm.setAttribute('id', 'filter-by-type-form');
+    filterTypeForm.setAttribute('autocomplete', 'off');
+
+    const filterTypeLabel = document.createElement('label');
+    filterTypeLabel.setAttribute('for', 'filter-by-type');
+
+    const typeOfBreweryTitle = document.createElement('h3');
+    typeOfBreweryTitle.textContent = 'Type of Brewery';
+
+    //Add typeOfBreweryTitle to filterTypeLabel:
+    filterTypeLabel.append(typeOfBreweryTitle);
+
+    const filterTypeSelect = document.createElement('select');
+    filterTypeSelect.setAttribute('id', 'filter-by-type');
+    filterTypeSelect.setAttribute('name', '"filter-by-type');
+    const initialOption = document.createElement('option');
+    initialOption.textContent = 'Select a type...';
+    filterTypeSelect.append(initialOption);
+
+    for (const type of state.breweryTypes) {
+        const optionEl = document.createElement('option');
+        optionEl.setAttribute('value', type);
+        optionEl.textContent = type;
+        filterTypeSelect.append(optionEl);
+    }
+    //Add filterTypeSelect to filterTypeForm:
+    filterTypeForm.append(filterTypeSelect);
+
+    const filterByCityDiv = document.createElement('div');
+    filterByCityDiv.setAttribute('class', 'filter-by-city-heading');
+
+    const citiesTitle = document.createElement('h3');
+    citiesTitle.textContent = 'Cities';
+
+    const clearBtn = document.createElement('button');
+    clearBtn.setAttribute('class', 'clear-all-btn');
+    clearBtn.textContent = 'clear all';
+
+    //Add citiesTitle and clearBtn to filterByCityDiv:
+    filterByCityDiv.append(citiesTitle, clearBtn);
+
+    const filterCityForm = document.createElement('form');
+    filterCityForm.setAttribute('id', 'filter-by-city-form');
+
+
+    getCities();
+    for (const city of state.breweriesCities) {
+        const checkboxEl = document.createElement('input');
+        checkboxEl.setAttribute('id', city)
+        checkboxEl.setAttribute('type', 'checkbox');
+        checkboxEl.setAttribute('name', city);
+        checkboxEl.setAttribute('value', city);
+        const checkboxLabel = document.createElement('label');
+        checkboxLabel.setAttribute('for', city);
+        checkboxLabel.textContent = city;
+
+        //Add checkbox to form:
+        filterCityForm.append(checkboxEl, checkboxLabel);
+    }
+
+
+    //Add everything to asideEl:
+    asideEL.append(filterByTitle, filterTypeForm, filterByCityDiv, filterCityForm);
+    main.append(asideEL);
+
+}
 function getBreweriesFromDatabase() {
     return fetch('https://api.openbrewerydb.org/breweries').then(res => res.json())
 }
@@ -201,6 +255,7 @@ function render() {
 
     articleEl.innerHTML = ''
     createListElements();
+    renderFilterSection()
 }
 
 function init() {
