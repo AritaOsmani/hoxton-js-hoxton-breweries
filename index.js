@@ -1,4 +1,7 @@
 const main = document.querySelector('main');
+const articleEl = document.createElement('article');
+const asideEL = document.createElement('aside');
+asideEL.setAttribute('class', 'filters-section');
 
 const state = {
     // breweries: [],
@@ -7,6 +10,29 @@ const state = {
     breweryTypes: ['micro', 'regional', 'brewpub']
 }
 
+// function getStateFromForm() {
+//     const stateForm = document.querySelector('#select-state-form');
+//     const stateInput = document.querySelector('#select-state');
+//     stateForm.addEventListener('submit', (event) => {
+//         event.preventDefault();
+//         const stateGiven = stateInput.value;
+//         getBreweriesByState(stateGiven).then(obj => {
+//             state.breweriesByState = obj;
+//             state.breweriesByState = state.breweriesByState.filter(element => {
+
+//                 return state.breweryTypes.includes(element['brewery_type'])
+//             })
+//             let newArray = [];
+//             for (let i = 0; i < 10; i++) {
+//                 newArray.push(state.breweriesByState[i]);
+//             }
+
+//             render();
+//             createListElements(newArray);
+
+//         });
+//     })
+// }
 function getStateFromForm() {
     const stateForm = document.querySelector('#select-state-form');
     const stateInput = document.querySelector('#select-state');
@@ -15,21 +41,17 @@ function getStateFromForm() {
         const stateGiven = stateInput.value;
         getBreweriesByState(stateGiven).then(obj => {
             state.breweriesByState = obj;
-            state.breweriesByState = state.breweriesByState.filter(element => {
-
-                return state.breweryTypes.includes(element['brewery_type'])
-            })
-            let newArray = [];
-            for (let i = 0; i < 10; i++) {
-                newArray.push(state.breweriesByState[i]);
-            }
-
             render();
-            createListElements(newArray);
-
         });
     })
-
+}
+function getBreweriesToDisplay() {
+    let breweriesToDisplay = state.breweriesByState;
+    breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
+        return state.breweryTypes.includes(brewery['brewery_type']);
+    })
+    breweriesToDisplay = breweriesToDisplay.slice(0, 10);
+    return breweriesToDisplay;
 }
 function renderHeaderElements() {
     const title = document.createElement('h1');
@@ -70,22 +92,17 @@ function renderHeaderElements() {
     headerEl.append(formEl);
     main.append(title, headerEl);
 }
-const articleEl = document.createElement('article');
 
-function createListElements(array) {
-
-
+function createListElements() {
     const listContainer = document.createElement('ul');
-
     listContainer.setAttribute('class', 'breweries-list');
     console.log('before loop')
-
-    for (const brewery of array) {
+    const breweriesToDisplay = getBreweriesToDisplay();
+    for (const brewery of breweriesToDisplay) {
         const listElement = createBreweryProperties(brewery)
         //Add listElement to listContainer:
         listContainer.append(listElement);
     }
-
     //Add listContainer to articleEl:
     articleEl.append(listContainer);
 
@@ -183,6 +200,7 @@ function render() {
     renderHeaderElements();
 
     articleEl.innerHTML = ''
+    createListElements();
 }
 
 function init() {
