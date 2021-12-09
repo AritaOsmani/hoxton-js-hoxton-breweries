@@ -21,6 +21,7 @@ function getStateFromForm() {
         const stateGiven = stateInput.value;
         getBreweriesByState(stateGiven).then(obj => {
             state.breweriesByState = obj;
+            state.selectedCities = [];
             render();
         });
     })
@@ -30,12 +31,17 @@ function getBreweriesToDisplay() {
     if (state.selectedBreweryType !== '') {
         breweriesToDisplay = breweriesToDisplay
             .filter(brewery => brewery['brewery_type'] === state.selectedBreweryType)
-    } else {
-        breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
-            return state.breweryTypes.includes(brewery['brewery_type']);
-        })
+    } else if (state.selectedCities.length !== 0) {
 
+        for (const item of state.selectedCities) {
+            breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === item)
+        }
     }
+    breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
+        return state.breweryTypes.includes(brewery['brewery_type']);
+    })
+
+
 
     breweriesToDisplay = breweriesToDisplay.slice(0, 10);
     return breweriesToDisplay;
@@ -51,6 +57,7 @@ function getSelectedCheckbox() {
     const cityCheckboxes = document.querySelectorAll('.city-checkbox');
     state.selectedCities = [...cityCheckboxes].filter(checkbox => checkbox.checked)
         .map(checkbox => checkbox.value);
+
 }
 
 function renderHeaderElements() {
@@ -96,7 +103,6 @@ function renderHeaderElements() {
 function createListElements() {
     const listContainer = document.createElement('ul');
     listContainer.setAttribute('class', 'breweries-list');
-    console.log('before loop')
     const breweriesToDisplay = getBreweriesToDisplay();
     for (const brewery of breweriesToDisplay) {
         const listElement = createBreweryProperties(brewery)
@@ -237,8 +243,9 @@ function renderFilterSection() {
         checkboxLabel.textContent = city;
 
         checkboxEl.addEventListener('click', function () {
-            getSelectedCheckbox();
 
+            getSelectedCheckbox();
+            render();
         })
         //Add checkbox to form:
         filterCityForm.append(checkboxEl, checkboxLabel);
@@ -284,6 +291,7 @@ function render() {
     renderHeaderElements();
 
     articleEl.innerHTML = ''
+
     createListElements();
     renderFilterSection()
 }
