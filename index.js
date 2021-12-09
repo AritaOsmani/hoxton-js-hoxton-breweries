@@ -2,12 +2,14 @@ const main = document.querySelector('main');
 const articleEl = document.createElement('article');
 const asideEL = document.createElement('aside');
 asideEL.setAttribute('class', 'filters-section');
-
+const filterTypeSelect = document.createElement('select');
 const state = {
     // breweries: [],
     breweriesByState: [],
     breweriesCities: [],
-    breweryTypes: ['micro', 'regional', 'brewpub']
+    breweryTypes: ['micro', 'regional', 'brewpub'],
+    selectedBreweryType: '',
+    selectedCities: []
 }
 
 
@@ -31,6 +33,17 @@ function getBreweriesToDisplay() {
     breweriesToDisplay = breweriesToDisplay.slice(0, 10);
     return breweriesToDisplay;
 }
+function listenToSelectElement() {
+    filterTypeSelect.addEventListener('change', function () {
+        state.selectedBreweryType = filterTypeSelect.value;
+    })
+}
+function getSelectedCheckbox() {
+    const cityCheckboxes = document.querySelectorAll('.city-checkbox');
+    state.selectedCities = [...cityCheckboxes].filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+}
+
 function renderHeaderElements() {
     const title = document.createElement('h1');
     title.textContent = 'List of Breweries'
@@ -145,6 +158,7 @@ function createBreweryProperties(brewery) {
 }
 function renderFilterSection() {
     asideEL.innerHTML = ''
+    filterTypeSelect.innerHTML = ''
     if (state.breweriesByState.length === 0) {
         asideEL.style.display = 'none';
     } else {
@@ -166,7 +180,7 @@ function renderFilterSection() {
     //Add typeOfBreweryTitle to filterTypeLabel:
     filterTypeLabel.append(typeOfBreweryTitle);
 
-    const filterTypeSelect = document.createElement('select');
+
     filterTypeSelect.setAttribute('id', 'filter-by-type');
     filterTypeSelect.setAttribute('name', '"filter-by-type');
     const initialOption = document.createElement('option');
@@ -205,11 +219,16 @@ function renderFilterSection() {
         checkboxEl.setAttribute('id', city)
         checkboxEl.setAttribute('type', 'checkbox');
         checkboxEl.setAttribute('name', city);
+        checkboxEl.setAttribute('class', 'city-checkbox');
         checkboxEl.setAttribute('value', city);
         const checkboxLabel = document.createElement('label');
         checkboxLabel.setAttribute('for', city);
         checkboxLabel.textContent = city;
 
+        checkboxEl.addEventListener('click', function () {
+            getSelectedCheckbox();
+
+        })
         //Add checkbox to form:
         filterCityForm.append(checkboxEl, checkboxLabel);
     }
@@ -263,11 +282,10 @@ function init() {
     //     state.breweries = breweriesFromDatabase;
     //     getCities()
     // })
-
-
-
     getStateFromForm();
     render();
+    listenToSelectElement();
+
 }
 
 
