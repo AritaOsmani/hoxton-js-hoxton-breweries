@@ -26,28 +26,36 @@ function getStateFromForm() {
             state.selectedCities = [];
             state.breweryName = '';
             state.breweryCity = ''
+            state.selectedBreweryType = ''
             render();
         });
     })
 }
 function getBreweriesToDisplay() {
     let breweriesToDisplay = state.breweriesByState;
+
     if (state.selectedBreweryType !== '') {
         breweriesToDisplay = breweriesToDisplay
             .filter(brewery => brewery['brewery_type'] === state.selectedBreweryType)
-    } else if (state.selectedCities.length !== 0) {
+    }
+    else if (state.selectedCities.length !== 0) {
 
-        for (const item of state.selectedCities) {
-            breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === item)
+        // for (const item of state.selectedCities) {
+        //     breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === item)
 
-        }
-    } else if (state.breweryName !== '') {
+        // }
+        breweriesToDisplay = breweriesToDisplay
+            .filter(brewery => state.selectedCities.includes(brewery.city))
+    }
+    else if (state.breweryName !== '') {
         breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.name === state.breweryName)
 
-    } else if (state.breweryCity !== '') {
+    }
+    else if (state.breweryCity !== '') {
 
         breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === state.breweryCity)
     }
+
     breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
         return state.breweryTypes.includes(brewery['brewery_type']);
     })
@@ -161,7 +169,7 @@ function createBreweryProperties(brewery) {
     const firstPartAdd = document.createElement('p');
     firstPartAdd.textContent = brewery['address_2'];
     const secPartAdd = document.createElement('strong');
-    secPartAdd.textContent = brewery.street;
+    secPartAdd.textContent = `${brewery.street}\n${brewery.city}`;
     const secPartAddContainer = document.createElement('p');
 
     //Add secPartAdd to secPartAddContaoner:
@@ -220,10 +228,12 @@ function renderFilterSection() {
     filterTypeLabel.append(typeOfBreweryTitle);
 
 
+
+
     filterTypeSelect.setAttribute('id', 'filter-by-type');
     filterTypeSelect.setAttribute('name', '"filter-by-type');
     const initialOption = document.createElement('option');
-    initialOption.setAttribute('value', null);
+    initialOption.setAttribute('value', '');
     initialOption.textContent = 'Select a type...';
     filterTypeSelect.append(initialOption);
 
@@ -233,7 +243,7 @@ function renderFilterSection() {
         optionEl.textContent = type;
         filterTypeSelect.append(optionEl);
     }
-
+    filterTypeSelect.value = state.selectedBreweryType;
     //Add filterTypeSelect to filterTypeForm:
     filterTypeForm.append(filterTypeSelect);
 
@@ -265,11 +275,14 @@ function renderFilterSection() {
         const checkboxLabel = document.createElement('label');
         checkboxLabel.setAttribute('for', city);
         checkboxLabel.textContent = city;
+        if (state.selectedCities.includes(checkboxEl.value)) {
+            checkboxEl.checked = true;
+        }
 
         checkboxEl.addEventListener('click', function () {
-
             getSelectedCheckbox();
             render();
+            state.selectedCities = [];
         })
         //Add checkbox to form:
         filterCityForm.append(checkboxEl, checkboxLabel);
