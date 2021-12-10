@@ -38,20 +38,18 @@ function getBreweriesToDisplay() {
         breweriesToDisplay = breweriesToDisplay
             .filter(brewery => brewery['brewery_type'] === state.selectedBreweryType)
     }
-    else if (state.selectedCities.length !== 0) {
+    if (state.selectedCities.length !== 0) {
 
-        // for (const item of state.selectedCities) {
-        //     breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === item)
-
-        // }
         breweriesToDisplay = breweriesToDisplay
             .filter(brewery => state.selectedCities.includes(brewery.city))
     }
-    else if (state.breweryName !== '') {
-        breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.name === state.breweryName)
+    if (state.breweryName !== '') {
+        breweriesToDisplay = breweriesToDisplay.filter(function (brewery) {
+            return brewery.name.toUpperCase().includes(state.breweryName.toUpperCase())
+        })
 
     }
-    else if (state.breweryCity !== '') {
+    if (state.breweryCity !== '') {
 
         breweriesToDisplay = breweriesToDisplay.filter(brewery => brewery.city === state.breweryCity)
     }
@@ -60,6 +58,7 @@ function getBreweriesToDisplay() {
         return state.breweryTypes.includes(brewery['brewery_type']);
     })
 
+
     breweriesToDisplay = breweriesToDisplay.slice(0, 10);
     return breweriesToDisplay;
 }
@@ -67,7 +66,7 @@ function listenToSelectElement() {
     filterTypeSelect.addEventListener('change', function () {
         state.selectedBreweryType = filterTypeSelect.value;
         render();
-        state.selectedBreweryType = ''
+
     })
 }
 function getSelectedCheckbox() {
@@ -115,10 +114,8 @@ function renderHeaderElements() {
         const cityName = inputEl.value;
         if (state.breweriesCities.includes(cityName)) {
             state.breweryCity = cityName;
-            state.breweryName = ''
         } else {
             state.breweryName = cityName;
-            state.selectedCities = [];
         }
 
         render();
@@ -126,6 +123,7 @@ function renderHeaderElements() {
 
     //Add labelEl and inputEl to the formEl:
     formEl.append(labelEl, inputEl);
+
 
     //Add  formEl to headerEl:
     headerEl.append(formEl);
@@ -282,7 +280,7 @@ function renderFilterSection() {
         checkboxEl.addEventListener('click', function () {
             getSelectedCheckbox();
             render();
-            state.selectedCities = [];
+            // state.selectedCities = [];
         })
         //Add checkbox to form:
         filterCityForm.append(checkboxEl, checkboxLabel);
@@ -294,22 +292,9 @@ function renderFilterSection() {
     main.append(asideEL);
 
 }
-function getBreweriesFromDatabase() {
-    return fetch('https://api.openbrewerydb.org/breweries').then(res => res.json())
-}
 
 function getBreweriesByState(state) {
     return fetch(`https://api.openbrewerydb.org/breweries?by_state=${state}&per_page=50`).then(res => res.json())
-}
-
-
-
-function getBreweriesByCity(city) {
-    return fetch(`https://api.openbrewerydb.org/breweries?by_city=${city}`).then(res => res.json());
-}
-
-function getBreweriesByType(type) {
-    return fetch(`https://api.openbrewerydb.org/breweries?by_type=${type}`).then(res => res.json())
 }
 
 function getCities() {
@@ -334,10 +319,6 @@ function render() {
 }
 
 function init() {
-    // getBreweriesFromDatabase().then(function (breweriesFromDatabase) {
-    //     state.breweries = breweriesFromDatabase;
-    //     getCities()
-    // })
     getStateFromForm();
     render();
     listenToSelectElement();
